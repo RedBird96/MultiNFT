@@ -1,66 +1,82 @@
-## Foundry
+# <h1 align="center"> Multi-Utility NFT Contract </h1>
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+## Overview
+The MultiNFT contract is a versatile ERC721-based NFT contract that supports phased minting, discounted minting with signatures, and vesting functionality. It is designed to handle three distinct minting phases:
 
-Foundry consists of:
+**Phase 1**: Whitelisted users can mint NFTs for free using Merkle proofs.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+**Phase 2**: Selected users can mint NFTs at a discounted price using Merkle proofs and signatures.
 
-## Documentation
+**Phase 3**: Open minting for everyone at the full price.
 
-https://book.getfoundry.sh/
+Additionally, the contract includes a vesting mechanism that locks minting fees in a linear vesting schedule, allowing the contract owner to claim vested tokens over time.
 
 ## Usage
 
-### Build
+**Phased Minting**:
 
-```shell
-$ forge build
+- Phase 1: Free minting for whitelisted users (verified via Merkle proofs).
+- Phase 2: Discounted minting for selected users (verified via Merkle proofs and signatures).
+- Phase 3: Open minting for everyone at the full price.
+
+**Vesting Mechanism**:
+- Minting fees are locked in a linear vesting schedule for one year.
+- Only the contract owner can claim vested tokens.
+
+**Security**:
+- Uses OpenZeppelin's ReentrancyGuard to prevent reentrancy attacks.
+- Ensures signatures are not reused.
+- Validates Merkle proofs to prevent unauthorized minting.
+
+**Flexibility**:
+- The contract owner can update the minting phase and transfer ownership.
+
+## Usage
+- Set the Minting Phase:
+```bash
+nft.setPhase(MultiNFT.Phase.Phase1);
+```
+- Mint an NFT in Phase 1:
+```bash
+nft.mintFree(proof);
+```
+- Mint an NFT in Phase 2:
+```bash
+nft.mintWithDiscount(proof, signature);
+```
+- Mint an NFT in Phase 3:
+```bash
+nft.mintNFT();
+```
+- Claim Vested Tokens:
+```bash
+nft.claimVestedTokens();
 ```
 
-### Test
-
-```shell
-$ forge test
+## Testing
+The contract includes a comprehensive test suite written in Foundry. To run the tests:
+```bash
+forge test
 ```
 
-### Format
+**Test Coverage**
 
-```shell
-$ forge fmt
-```
+- Phased Minting:
+    - Valid and invalid Merkle proofs.
+    - Valid and invalid signatures.
+- Vesting Functionality:
+    - Linear vesting schedule.
+    - Token withdrawal by the owner.
+- Edge Cases:
+    - Reentrancy attacks.
+    - Invalid phases.
 
-### Gas Snapshots
 
-```shell
-$ forge snapshot
-```
+![screenshot](./Coverage.png)
 
-### Anvil
+## Security
 
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+The contract uses OpenZeppelin's **ReentrancyGuard** to prevent reentrancy attacks. Additionally, it ensures:
+- Signatures cannot be reused.
+- Merkle proofs are validated to prevent unauthorized minting.
+- Only the owner can claim vested tokens.
